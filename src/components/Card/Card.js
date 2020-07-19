@@ -13,12 +13,13 @@ const Card = ( props ) => {
         }
     
     const card = <img draggable='false'
+                    id={props.cardId}
                     style={{
                         display: 'inline-block',
                         width: props.cardWidth,
                         position: 'absolute',
                         }}
-                    key={props.cardPath} src={props.cardPath} 
+                    key={props.cardId} src={props.cardPath} 
                     alt={props.cardName}>
                 </img>
 

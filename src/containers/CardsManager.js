@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-// import $ from 'jquery';
 // import classes from './CardsManager.module.css'
 
+import $ from 'jquery';
 import CardsField from '../components/CardsField/CardsField'
 import CardsColumns from '../components/CardsColumns/CardsColumns';
 import CardsStack from '../components/CardsStack/CardsStack';
 import Card from '../components/Card/Card';
 
 //пасьянс паук - 102 карты
-//ширина колонки - 8+0.9+0.9vw
+//ширина колонки - 8+0.9+0.9vw = 9.8vw
+//Анимации делать с помощью jquery  и пофиг
 class CardsManager extends Component {
 
     state = {
@@ -50,7 +51,7 @@ class CardsManager extends Component {
                 cardsShirt = {
                     cardPath: cardPath,
                     cardName: cardName,
-                    cardId: cardName + '__' + uuidv4(),
+                    cardId: null,
                 }
 
                 return;
@@ -59,8 +60,10 @@ class CardsManager extends Component {
             cards.push({
                     cardPath: cardPath,
                     cardName: cardName,
-                    cardId: cardName + '__' + uuidv4(),
+                    cardId: null,
                     cardIndex: cardIndex,
+                    positionInStackX: null, //позиция для оображения карты на экране когда она в стеке
+                    positionInStackY: null,
                     columnIndex: null //номер колонки, в которой расположена карта (дефолт - не в колонке)
                 }
             );
@@ -75,8 +78,11 @@ class CardsManager extends Component {
 
     copyDeckOfCards(deckArr = []){
         return deckArr.map(( card ) => {
-            card.cardId = card.cardName + '__' + uuidv4();
-            return card;
+
+            const cardCopy = {...card};
+            cardCopy.cardId = card.cardName + '__' + uuidv4();
+            return cardCopy;
+            
         })
     }
 
@@ -108,27 +114,64 @@ class CardsManager extends Component {
     fillColumnsToBeginGame = (columnsSize = 0) => {
         //раздать карты 5 раз
         if(columnsSize < 5) this.giveOutCards(true, columnsSize); 
+        //после того как колонки заполнены - проанимировать выдачу карт
+        else {      
+            Object.keys(this.state.cardsColumns)
+            // eslint-disable-next-line array-callback-return
+            .map(( columnName, columnIndex ) => {
+                this.state.cardsColumns[columnName].forEach(( cardInColumn, cardInColumnIndex ) => {
+                        this.moveCardFromStackToColumnAnim(cardInColumn, columnIndex, cardInColumnIndex);
+                    
+                })
+            })
+        }
     }
+
+    moveCardFromStackToColumnAnim = (card, columnIndex, cardInColumnIndex) => {
+        console.log('Номер колонки ' + columnIndex + ', карта: ' + card)
+        //ширина одной колонки для карт 9.8vw, отступ вычисляем по формуле 9.8*индексКолонки+padding оболочки (~1vw)
+        $(`#${card.cardId}`).animate({
+            top: 'auto',
+            left: 'auto',
+            right: `${2+card.positionInStackX}vw`,
+            bottom: `${5+card.positionInStackY}vh`
+        },0,() => {
+            $(`#${card.cardId}`).animate({
+                right: 'auto',
+                bottom: 'auto',
+                left: `${1.4+9.8*columnIndex}vw`,
+                top: `${1+cardInColumnIndex}vh`
+            }, 2000)
+        })
+        
+    }
+
     componentDidMount(){
         
         this.fillColumnsToBeginGame();
+
+        // this.moveCardFromStackToColumnAnim('testingCard',6);
     }
 
     render() {
         //карты в стеке
         const cardsInStack = this.state.cardsStack.map((card, index) => {
+            card.positionInStackX = 5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(index/10));
+            card.positionInStackY = 0;
             return <Card cardWidth={this.state.cardWidth}
                     cardPath={card.cardPath}
                     disableDrag
                     // Изначально сместить карты вправо на величину, равную 5пх*кол-во стеков по 10 карт.
                     // По мере наложения стеков смещать стеки влево на 5пх за каждый стек
                     transformCardPosition={{x: 5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(index/10)), y: 0}}
-                    key={uuidv4()}/>
+                    cardId={card.cardId}
+                    key={card.cardId}/>
         })
 
         const testingCard = <Card transitionParams='top 1s, left 1s' x='0.9vw' y='1%'
                             cardWidth={this.state.cardWidth}
-                            cardPath={this.state.cards[0].cardPath}/>;
+                            cardPath={this.state.cards[0].cardPath}
+                            cardId='testingCard'/>;
                             
         return (
             <CardsField>
