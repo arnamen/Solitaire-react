@@ -1,5 +1,6 @@
 .DraggableCardsColumn {
     display: inline-block;
+    position: absolute;
     width: 8vw;
     height: 11.3vw;
     margin: 0 0.9vw;

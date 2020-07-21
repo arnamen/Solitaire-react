@@ -12,8 +12,7 @@ const CardsColumns = ( props ) => {
             columnsWithCards.push(
 
                 <CardsColumn columnWidth={props.columnWidth}
-                checkIfCardApplied={props.checkIfCardApplied}
-                selectAndHighZIndexOnCard={props.selectAndHighZIndexOnCard}
+                addCardsToDraggableColumn={props.addCardsToDraggableColumn}
                 defaultZIndexOnCard={props.defaultZIndexOnCard}
                 cardsStackLength={props.cardsStackLength}
                 cardsInColumn={props.cardsColumns[ColumnWithCards] /* передать содержимое (карты) в колонке */}

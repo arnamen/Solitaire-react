@@ -10,9 +10,8 @@ const CardsColumn = ( props ) => {
 
         return <Card cardData={cardData}
                     checkIfCardApplied={props.checkIfCardApplied}
-                     transformCardPosition={{x: '-1vw', y: (2*cardIndex) + 'vh'}}
-                     selectAndHighZIndexOnCard={props.selectAndHighZIndexOnCard}
-                     defaultZIndexOnCard={props.defaultZIndexOnCard}
+                     transformCardPosition={{x: '-1vw', y: (3*cardIndex) + 'vh'}}
+                     addCardsToDraggableColumn={props.addCardsToDraggableColumn}
                      hideCardValue={cardData.hideCardValue}
                      /* ОтключитьПеретягивание=НеПоследняяКартаВСтеке */
                      disableDrag = {!(cardIndex === props.cardsInColumn.length-1)}

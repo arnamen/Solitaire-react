@@ -1,6 +1,6 @@
 import React from 'react';
 import Draggable from 'react-draggable';
-
+import $ from 'jquery'
 // import classes from './Card.module.css'
 
 const Card = ( props ) => {
@@ -13,7 +13,13 @@ const Card = ( props ) => {
             if(cardPosition.x.includes('vw')) cardPosition.x = vwTOpx(parseFloat(cardPosition.x));
             if(cardPosition.y.includes('vh')) cardPosition.y = vhTOpx(parseFloat(cardPosition.y));
         }
+
+        if(props.cardData.cardId === 'testingCard'){
+            console.log(props.cardData.cardPath)
+        }
+
     const card = <img 
+                    className={props.className}
                     draggable='false'
                     id={props.cardData.cardId}
                     style={{
@@ -31,12 +37,16 @@ const Card = ( props ) => {
             <Draggable disabled={props.disableDrag} 
                        defaultPosition ={cardPosition}
                        position={cardPosition}
-                       onStop={() => {
-                           props.defaultZIndexOnCard(props.cardData)
-                           props.checkIfCardApplied();
+                       onMouseDown={() => {
+                        if(props.className) console.log(props.className)
                         }}
-                       onStart={() => {
-                           props.selectAndHighZIndexOnCard(props.cardData)
+                       onStart={(event) => {
+                        $('.DraggableCardsColumn').css({
+                            top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/2) + 'px',
+                            left: (event.clientX-parseFloat(props.cardData.cardWidth)/2) + 'px'
+                        });
+                        
+                        props.addCardsToDraggableColumn(props.cardData);
                            }}>
                 {card}
             </Draggable>
