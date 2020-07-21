@@ -1,6 +1,8 @@
 import React from 'react';
 import Draggable from 'react-draggable';
 
+// import classes from './Card.module.css'
+
 const Card = ( props ) => {
 
     const cardPosition = props.transformCardPosition;
@@ -11,21 +13,31 @@ const Card = ( props ) => {
             if(cardPosition.x.includes('vw')) cardPosition.x = vwTOpx(parseFloat(cardPosition.x));
             if(cardPosition.y.includes('vh')) cardPosition.y = vhTOpx(parseFloat(cardPosition.y));
         }
-    
-    const card = <img draggable='false'
-                    id={props.cardId}
+    const card = <img 
+                    draggable='false'
+                    id={props.cardData.cardId}
                     style={{
                         display: 'inline-block',
-                        width: props.cardWidth,
+                        width: props.cardData.cardWidth,
                         position: 'absolute',
+                        ...props.style
                         }}
-                    key={props.cardId} src={props.cardPath} 
-                    alt={props.cardName}>
+                    key={props.cardData.cardId} 
+                    src={props.cardData.hideCardValue ? props.cardData.cardShirt.cardPath : props.cardData.cardPath} 
+                    alt={props.cardData.cardName}>
                 </img>
 
     return (
             <Draggable disabled={props.disableDrag} 
-                       defaultPosition ={cardPosition}>
+                       defaultPosition ={cardPosition}
+                       position={cardPosition}
+                       onStop={() => {
+                           props.defaultZIndexOnCard(props.cardData)
+                           props.checkIfCardApplied();
+                        }}
+                       onStart={() => {
+                           props.selectAndHighZIndexOnCard(props.cardData)
+                           }}>
                 {card}
             </Draggable>
     );

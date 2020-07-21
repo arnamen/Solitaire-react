@@ -7,16 +7,22 @@ import classes from './CardsColumn.module.css'
 const CardsColumn = ( props ) => {
 
     const cardsInColumn = props.cardsInColumn.map((cardData, cardIndex) => {
-        return <Card cardPath={cardData.cardPath}
-                     cardName={cardData.cardName}
-                     transformCardPosition={{x: '0//-1vw', y: (-0.5 + 2*cardIndex) + 'vh'}}
-                     cardWidth='126px'
+
+        return <Card cardData={cardData}
+                    checkIfCardApplied={props.checkIfCardApplied}
+                     transformCardPosition={{x: '-1vw', y: (2*cardIndex) + 'vh'}}
+                     selectAndHighZIndexOnCard={props.selectAndHighZIndexOnCard}
+                     defaultZIndexOnCard={props.defaultZIndexOnCard}
+                     hideCardValue={cardData.hideCardValue}
                      /* ОтключитьПеретягивание=НеПоследняяКартаВСтеке */
                      disableDrag = {!(cardIndex === props.cardsInColumn.length-1)}
-                     cardId = {cardData.cardId}
-                     cardIndex = {cardData.cardIndex}
-                     columnIndex = {cardData.columnIndex}
-                     key={cardData.cardId}/>
+                     insideColumnIndex={cardData.insideColumnIndex}
+                     key={cardData.cardId}
+                     style={{
+                        left: `${2+9.8*cardData.columnIndex}vw`,
+                        top: `${0.5}vh`
+                     }}
+                     />
     })
 
     //высота и ширина места для карт а 5% меньше самих карт

@@ -1,4 +1,5 @@
 .CardsColumns {
     padding: 0 1vw;
     padding-top: 1vh;
+    overflow: hidden;
 }
