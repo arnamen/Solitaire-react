@@ -12,7 +12,7 @@ const DraggableCardColumn = ( props ) => {
         return <Card cardData={cardData}
                 className={'dragTest'}
                 checkIfCardApplied={props.checkIfCardApplied}
-                transformCardPosition={{x: '-1vw', y: (6*0) + 'vh'}}
+                transformCardPosition={{x: '-1vw', y: (3*cardIndex) + 'vh'}}
                 hideCardValue={cardData.hideCardValue}
                 disableDrag = {true}
                 insideColumnIndex={cardData.insideColumnIndex}

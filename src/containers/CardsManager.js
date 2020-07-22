@@ -14,7 +14,7 @@ import Card from '../components/Card/Card';
 //Анимации делать с помощью jquery  и пофиг
 class CardsManager extends Component {
 
-    selectedCard = null; //картка, которую выбрал пользователь
+    selectedCards = null; //картка, которую выбрал пользователь
     hoveredCard = null; //карта на которую навёл пользователь
 
     state = {
@@ -257,35 +257,31 @@ class CardsManager extends Component {
     //проверка подходит ли карта для перемещения в выбранную колонку
     //selectedCard устанавливается автоматически при начале перемещения карты
     //перемещение выполняется в этой же функции
-    checkIfCardApplied = (hoveredCard = {...this.hoveredCard}, selectedCard = this.selectedCard) => {
+    checkIfCardApplied = (hoveredCard = {...this.hoveredCard}, selectedCards = this.selectedCard) => {
 
-            const selectedCards = selectedCard;
+            
             if(selectedCards && hoveredCard && !$.isEmptyObject(hoveredCard) && selectedCards.length !== 0 && 
                 hoveredCard.priority - 1 === selectedCards[0].priority &&
                 //условие - если карта наведенная является последней в колонке
                hoveredCard.insideColumnIndex === this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex].length - 1){
-    
+                    //колонка в которую надо переместить карту
                     const hoveredCardColumn = [...this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex]];
-                    // const cardFromSelectedColumn = selectedCardColumn.pop(); //удалить выбранную карту из её колонки. не нужно
+
                     selectedCards.forEach(( card ) => {
-                        //изменить данные карты в соответствии с перемещеной колонкой
-                    const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCard[0].columnIndex]]; //не нужно
+                    //раскрыть следующую карту в выбранной колонке
+                    const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCards[0].columnIndex]]; //не нужно
                     selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
-                    console.log(selectedCardColumn)
+                    //изменить данные карты в соответствии с перемещеной колонкой
                     card.insideColumnIndex = hoveredCard.insideColumnIndex + 1;
                     card.columnIndex = hoveredCard.columnIndex;
-                    //раскрыть значение последней карты в колонке если оно скрыто
-                    // selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false; //доработать
                     //добавить выбранную карту в выбранную колонку
                     hoveredCardColumn.push(card); 
                     })
                     const cardsColumns = {...this.state.cardsColumns};
                     cardsColumns['cardsColumn' + hoveredCard.columnIndex] = hoveredCardColumn;
-                    // cardsColumns['cardsColumn' + selectedCard[0].columnIndex] = selectedCardColumn;
-                    // cardsColumns['cardsColumn' + selectedCard.columnIndex] = selectedCardColumn; //доработать
                     //очистить данные о выбранной и наведенной карте
                     this.hoveredCard = null;
-                    this.selectedCard = null;
+                    this.selectedCards = null;
                     this.setState({
                         cardsColumns: cardsColumns,
                         cardsDraggableColumn: []
@@ -345,12 +341,14 @@ class CardsManager extends Component {
         if(!initialCardData.columnIndex) return; //если в данных карты не указана колонка - прекратить работу
         //колонка в которой находится карта
         const selectedColumn = [...this.state.cardsColumns['cardsColumn' + initialCardData.columnIndex]];
-        const cardsDraggableColumn = this.state.cardsDraggableColumn;
+        const cardsDraggableColumn = this.state.cardsDraggableColumn; //то же самое что и = [] т.к. по дефолту буферная колонка пустая и скрыта
         const cardsColumns = {...this.state.cardsColumns};
 
-        for (let i = initialCardData.insideColumnIndex; i < selectedColumn.length; i++) {
+        cardsDraggableColumn.push(...selectedColumn.splice(initialCardData.insideColumnIndex,
+            selectedColumn.length - initialCardData.insideColumnIndex)); //добавить в буферную колонку выбранную карту и все после неё
+        /* for (let i = initialCardData.insideColumnIndex; i < selectedColumn.length; i++) {
             cardsDraggableColumn.push(...selectedColumn.splice(i,1));
-        }
+        } */ //добавить только выбранную карту (возможно)
 
         cardsColumns['cardsColumn' + initialCardData.columnIndex] = selectedColumn;
 
@@ -358,10 +356,10 @@ class CardsManager extends Component {
             cardsDraggableColumn: cardsDraggableColumn,
             cardsColumns: cardsColumns
         }, () => {
-            //сразу после добавления карты в буферную колонку затриггерить нажатие на карту так что колонку можно сразу перетягивать
+            //сразу после добавления карт в буферную колонку затриггерить нажатие на карту так что колонку можно сразу перетягивать
             const event = new Event('mousedown', {bubbles: true});
             event.simulated = true;
-            console.log(this.state.cardsDraggableColumn[0].cardId || initialCardData.cardId)
+
             document.getElementById(this.state.cardsDraggableColumn[0].cardId || initialCardData.cardId).dispatchEvent(event)
             // console.log($('#' + initialCardData.cardId).trigger('onMouseDown'))
         })

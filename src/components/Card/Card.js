@@ -39,10 +39,11 @@ const Card = ( props ) => {
                        position={cardPosition}
                        onStart={(event) => {
                         $('.DraggableCardsColumn').css({
-                            top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/2) + 'px',
+                            top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/10) + 'px',
                             left: (event.clientX-parseFloat(props.cardData.cardWidth)/2) + 'px'
                         });
-                        
+                        //в качестве аргумента передаётся первая карта
+                        //карты, которые следуют за ней функция получает самостоятельно
                         props.addCardsToDraggableColumn(props.cardData);
                            }}>
                 {card}
