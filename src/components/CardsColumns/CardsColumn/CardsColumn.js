@@ -14,7 +14,7 @@ const CardsColumn = ( props ) => {
                      addCardsToDraggableColumn={props.addCardsToDraggableColumn}
                      hideCardValue={cardData.hideCardValue}
                      /* ОтключитьПеретягивание=НеПоследняяКартаВСтеке */
-                     disableDrag = {checkIfCardDraggable(cardData,props.cardsInColumn)}
+                     disableDrag = {!checkIfCardDraggable(cardData,props.cardsInColumn)}
                      insideColumnIndex={cardData.insideColumnIndex}
                      key={cardData.cardId}
                      style={{
@@ -34,13 +34,16 @@ const CardsColumn = ( props ) => {
 
 const checkIfCardDraggable = (card, columnWithCards) => {
     let draggable = true;
-
-    for (let i = card.insideColumnIndex + 1; i < columnWithCards.length; i++) {
+    if(!card.hideCardValue){
+        console.log('here')
+    }
+    for (let i = card.insideColumnIndex; i < columnWithCards.length - 1; i++) {
+        
         //проверка что карты после выбранной распределены по приоритету, а сама выбранная карта не скрыта
-        draggable = i - card.insideColumnIndex === card.priority - columnWithCards[i].priority && !card.hideCardValue; 
+        draggable = columnWithCards[i].priority - columnWithCards[i+1].priority === 1  && !card.hideCardValue && draggable; 
     }
     // console.log('card: ' + card.cardName +  ' draggable: ' + draggable + ' hide value: ' + card.hideCardValue)
-    return !draggable;
+    return draggable;
 }
 
 export default CardsColumn;

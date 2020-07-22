@@ -158,6 +158,7 @@ class CardsManager extends Component {
                 cardsColumns[cardsColumn].push(cardFromStack);
 
             })
+            //TODO: добавить функцию которая раздает по 1 карте в столбик, например использвать только последние карты колонок
             this.setState({
                 cardsColumns: cardsColumns,
                 cardsStack: cardsStack
@@ -165,7 +166,7 @@ class CardsManager extends Component {
 
     }
 
-    fillColumnsToBeginGame = (columnsSize = 0, cardsDealMode = 2) => {
+    fillColumnsToBeginGame = (columnsSize = 0, cardsDealMode = 1) => {
         //cardsDealMode определяет каким образом раздавать карты. 1 - по столбикам, 2 - по строкам
         //раздать карты 5 раз
         if(columnsSize < 5) this.giveOutCards(true, columnsSize); 
@@ -179,6 +180,7 @@ class CardsManager extends Component {
                     Object.keys(this.state.cardsColumns)
                         .map((columnName, columnIndex) => {
                             return this.state.cardsColumns[columnName].forEach((cardInColumn, cardInColumnIndex) => {
+                                if(cardInColumnIndex !== this.state.cardsColumns[columnName].length - 1) return; //костыль для раздачи по 1 строке
                                 this.moveCardFromStackToColumnAnim(cardInColumn, columnIndex, cardInColumnIndex, animDelayCounter);
                                 animDelayCounter++;
                             })
@@ -192,7 +194,7 @@ class CardsManager extends Component {
                         Object.values(this.state.cardsColumns)
                             // eslint-disable-next-line no-loop-func
                             .map((cardsInColumn, columnIndex) => {
-
+                                //добавить нормальную раздачу карт по 1 строке за раз
                                 this.moveCardFromStackToColumnAnim(cardsInColumn[i], columnIndex, i, animDelayCounter);
                                 return animDelayCounter++;
                             })
@@ -206,9 +208,7 @@ class CardsManager extends Component {
         }
     }
     //устанавливается во время перетягивания
-    selectAndHighZIndexOnCard = (card, draggableColumnDebug = false) => {
-
-        if(draggableColumnDebug) {
+    selectAndHighZIndexOnCard = (card) => {
 
             const draggableColumnClassname = card.columnClassname;
             const cards = card.cardsInColumn;
@@ -223,14 +223,9 @@ class CardsManager extends Component {
                $('#' + card.cardId).css({pointerEvents: 'none'}) 
             })
 
-            return;
-        }
-
     }
     //устанавливается во время отпускания пользователем карты
-    defaultZIndexOnCard = (card, draggableColumnDebug = false) => {
-
-        if(draggableColumnDebug) {
+    defaultZIndexOnCard = (card) => {
 
             const draggableColumnClassname = card.columnClassname;
             const cards = card.cardsInColumn;
@@ -244,15 +239,6 @@ class CardsManager extends Component {
                 $('#' + card.cardId).css({pointerEvents: 'auto'}) 
              })
 
-            return;
-        }
-
-        let cardElem = $(`#${card.cardId}`);
-        cardElem.css({
-            zIndex: card.insideColumnIndex,
-            pointerEvents: 'auto'
-        })
-        
     }
     //проверка подходит ли карта для перемещения в выбранную колонку
     //selectedCard устанавливается автоматически при начале перемещения карты
@@ -267,12 +253,12 @@ class CardsManager extends Component {
                     //колонка в которую надо переместить карту
                     const hoveredCardColumn = [...this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex]];
 
-                    selectedCards.forEach(( card ) => {
+                    selectedCards.forEach(( card, index ) => {
                     //раскрыть следующую карту в выбранной колонке
                     const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCards[0].columnIndex]]; //не нужно
                     selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
                     //изменить данные карты в соответствии с перемещеной колонкой
-                    card.insideColumnIndex = hoveredCard.insideColumnIndex + 1;
+                    card.insideColumnIndex = hoveredCard.insideColumnIndex + 1 + index;
                     card.columnIndex = hoveredCard.columnIndex;
                     //добавить выбранную карту в выбранную колонку
                     hoveredCardColumn.push(card); 
@@ -289,9 +275,7 @@ class CardsManager extends Component {
             } else { //если колонка не выбрана - вернуть карты из буферной колонки в изначальную
                 const selectedCardsColumn = [...this.state.cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex]];
                 const cardsDraggableColumn = [...this.state.cardsDraggableColumn];
-                for (let i = 0; i < this.state.cardsDraggableColumn.length; i++) {
-                    selectedCardsColumn.push(cardsDraggableColumn.pop())
-                }
+                selectedCardsColumn.push(...cardsDraggableColumn);
 
                 const cardsColumns = {...this.state.cardsColumns};
                 cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex] = selectedCardsColumn;
@@ -338,7 +322,7 @@ class CardsManager extends Component {
     //добавить все карты из выбранной колонки начиная с выбранной, если выполняются услвоия
     addCardsToDraggableColumn = (initialCardData) => {
         
-        if(!initialCardData.columnIndex) return; //если в данных карты не указана колонка - прекратить работу
+        if(!$.isNumeric(initialCardData.columnIndex)) return; //если в данных карты не указана колонка - прекратить работу
         //колонка в которой находится карта
         const selectedColumn = [...this.state.cardsColumns['cardsColumn' + initialCardData.columnIndex]];
         const cardsDraggableColumn = this.state.cardsDraggableColumn; //то же самое что и = [] т.к. по дефолту буферная колонка пустая и скрыта
@@ -440,7 +424,9 @@ class CardsManager extends Component {
 
                     {/* Ширина стека равна ширине карты + количестве наборов по 10 карт для раздачи * 5 пикселей */}
                 <CardsStack width={(parseInt(this.state.cardWidth) + 5*(Math.floor(this.state.cardsStack.length/10))) + 'px'}
-                            height={this.state.cardHeight}>
+                            height={this.state.cardHeight}
+                            giveOutCards={this.giveOutCards}
+                            >
                     {cardsInStack}
                 </CardsStack>
             </CardsField>

@@ -38,6 +38,7 @@ const Card = ( props ) => {
                        defaultPosition ={cardPosition}
                        position={cardPosition}
                        onStart={(event) => {
+                        event.stopPropagation();
                         $('.DraggableCardsColumn').css({
                             top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/10) + 'px',
                             left: (event.clientX-parseFloat(props.cardData.cardWidth)/2) + 'px'
