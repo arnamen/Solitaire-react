@@ -12,20 +12,24 @@ const DraggableCardColumn = ( props ) => {
         return <Card cardData={cardData}
                 className={'dragTest'}
                 checkIfCardApplied={props.checkIfCardApplied}
-                transformCardPosition={{x: '-1vw', y: (6*cardIndex) + 'vh'}}
+                transformCardPosition={{x: '-1vw', y: (6*0) + 'vh'}}
                 hideCardValue={cardData.hideCardValue}
                 disableDrag = {true}
                 insideColumnIndex={cardData.insideColumnIndex}
                 key={cardData.cardId /* cardData.cardData.cardId */}
-                style={props.style || {
-                    left: `${2+9.8*cardData.columnIndex}vw`,
+                /* style={props.style || {
+                    left: `${3+9.8*cardData.columnIndex}vw`,
                     top: `${0.5}vh`
-                }}/>
+                }} *//>
     })
 
     return (
          props.cardsInColumn ? 
-         <Draggable 
+         <Draggable position={{
+             //начальное смещение колонки задаётся из onStart() кликнутой карты
+             x: 0,
+             y: 0
+         }}
         //  allowAnyClick
          handle= '.dragTest'
          defaultClassName='DraggableCardsColumn_drag'
@@ -43,14 +47,19 @@ const DraggableCardColumn = ( props ) => {
             cardsInColumn: props.cardsInColumn,
             columnClassname: 'DraggableCardsColumn'
             }, true);
-            props.checkIfCardApplied(true);
+            props.checkIfCardApplied();
                 }
             }
                 
                 >
 
-                    <div 
-                        className='DraggableCardsColumn'>
+                    <div
+                        className='DraggableCardsColumn'
+                        style={{
+                            display: cardsInColumn.length === 0 ? 'none' : 'inline-block',
+                            transform: 'none'
+                        }}
+                        >
                         {cardsInColumn}
                     </div>
 

@@ -226,14 +226,6 @@ class CardsManager extends Component {
             return;
         }
 
-        card.selected = true;
-        this.selectedCard = card;
-        let cardElem = $(`#${card.cardId}`);
-        cardElem.css({
-            zIndex: 11111,
-            pointerEvents: 'none'
-        })
-
     }
     //устанавливается во время отпускания пользователем карты
     defaultZIndexOnCard = (card, draggableColumnDebug = false) => {
@@ -265,23 +257,21 @@ class CardsManager extends Component {
     //проверка подходит ли карта для перемещения в выбранную колонку
     //selectedCard устанавливается автоматически при начале перемещения карты
     //перемещение выполняется в этой же функции
-    checkIfCardApplied = (draggableColumnDebug = false ,hoveredCard = {...this.hoveredCard}, selectedCard = this.selectedCard) => {
-
-        if(draggableColumnDebug){
+    checkIfCardApplied = (hoveredCard = {...this.hoveredCard}, selectedCard = this.selectedCard) => {
 
             const selectedCards = selectedCard;
-            if(!selectedCards || !hoveredCard || $.isEmptyObject(hoveredCard) || selectedCards.length === 0) return;
-            ///////тесты
-            if(hoveredCard.priority - 1 === selectedCards[0].priority &&
+            if(selectedCards && hoveredCard && !$.isEmptyObject(hoveredCard) && selectedCards.length !== 0 && 
+                hoveredCard.priority - 1 === selectedCards[0].priority &&
                 //условие - если карта наведенная является последней в колонке
-                hoveredCard.insideColumnIndex === this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex].length - 1){
+               hoveredCard.insideColumnIndex === this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex].length - 1){
     
                     const hoveredCardColumn = [...this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex]];
-                    // const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCard.columnIndex]]; //не нужно
-    
                     // const cardFromSelectedColumn = selectedCardColumn.pop(); //удалить выбранную карту из её колонки. не нужно
                     selectedCards.forEach(( card ) => {
                         //изменить данные карты в соответствии с перемещеной колонкой
+                    const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCard[0].columnIndex]]; //не нужно
+                    selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
+                    console.log(selectedCardColumn)
                     card.insideColumnIndex = hoveredCard.insideColumnIndex + 1;
                     card.columnIndex = hoveredCard.columnIndex;
                     //раскрыть значение последней карты в колонке если оно скрыто
@@ -289,52 +279,31 @@ class CardsManager extends Component {
                     //добавить выбранную карту в выбранную колонку
                     hoveredCardColumn.push(card); 
                     })
-    
                     const cardsColumns = {...this.state.cardsColumns};
                     cardsColumns['cardsColumn' + hoveredCard.columnIndex] = hoveredCardColumn;
+                    // cardsColumns['cardsColumn' + selectedCard[0].columnIndex] = selectedCardColumn;
                     // cardsColumns['cardsColumn' + selectedCard.columnIndex] = selectedCardColumn; //доработать
                     //очистить данные о выбранной и наведенной карте
                     this.hoveredCard = null;
                     this.selectedCard = null;
-    
                     this.setState({
-                        cardsColumns: cardsColumns
+                        cardsColumns: cardsColumns,
+                        cardsDraggableColumn: []
                     })
-            }
-
-            return;
-        }
-
-        if(!selectedCard || !hoveredCard || $.isEmptyObject(hoveredCard) || $.isEmptyObject(selectedCard)) return;
-        
-        //если приоритет выбранной карты на 1 ниже наведенной
-        if(hoveredCard.priority - 1 === selectedCard.priority &&
-            //условие - если карта наведенная является последней в колонке
-            hoveredCard.insideColumnIndex === this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex].length - 1){
-
-                const hoveredCardColumn = [...this.state.cardsColumns['cardsColumn' + hoveredCard.columnIndex]];
-                const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCard.columnIndex]];
-
-                const cardFromSelectedColumn = selectedCardColumn.pop(); //удалить выбранную карту из её колонки
-                //изменить данные карты в соответствии с перемещеной колонкой
-                cardFromSelectedColumn.insideColumnIndex = hoveredCard.insideColumnIndex + 1;
-                cardFromSelectedColumn.columnIndex = hoveredCard.columnIndex;
-                //раскрыть значение последней карты в колонке если оно скрыто
-                selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
-                //добавить выбранную карту в выбранную колонку
-                hoveredCardColumn.push(cardFromSelectedColumn); 
+            } else { //если колонка не выбрана - вернуть карты из буферной колонки в изначальную
+                const selectedCardsColumn = [...this.state.cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex]];
+                const cardsDraggableColumn = [...this.state.cardsDraggableColumn];
+                for (let i = 0; i < this.state.cardsDraggableColumn.length; i++) {
+                    selectedCardsColumn.push(cardsDraggableColumn.pop())
+                }
 
                 const cardsColumns = {...this.state.cardsColumns};
-                cardsColumns['cardsColumn' + hoveredCard.columnIndex] = hoveredCardColumn;
-                cardsColumns['cardsColumn' + selectedCard.columnIndex] = selectedCardColumn;
-                //очистить данные о выбранной и наведенной карте
-                this.hoveredCard = null;
-                this.selectedCard = null;
-
+                cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex] = selectedCardsColumn;
                 this.setState({
-                    cardsColumns: cardsColumns
+                    cardsColumns: cardsColumns,
+                    cardsDraggableColumn: []
                 })
-        }
+            }
     }
 
     moveCardFromStackToColumnAnim = (card, columnIndex, cardInColumnIndex, animDelayMultiplier) => {
@@ -370,21 +339,20 @@ class CardsManager extends Component {
             })
 
     }
-    //добавить все карты из колонки начиная с выбранной, если выполняются услвоия
+    //добавить все карты из выбранной колонки начиная с выбранной, если выполняются услвоия
     addCardsToDraggableColumn = (initialCardData) => {
         
-        if(!initialCardData.columnIndex) return;
-
-        const column = [...this.state.cardsColumns['cardsColumn' + initialCardData.columnIndex]];
+        if(!initialCardData.columnIndex) return; //если в данных карты не указана колонка - прекратить работу
+        //колонка в которой находится карта
+        const selectedColumn = [...this.state.cardsColumns['cardsColumn' + initialCardData.columnIndex]];
         const cardsDraggableColumn = this.state.cardsDraggableColumn;
         const cardsColumns = {...this.state.cardsColumns};
 
-        for (let i = initialCardData.insideColumnIndex; i < column.length; i++) {
-            cardsDraggableColumn.push(...column.splice(i,1));
-
+        for (let i = initialCardData.insideColumnIndex; i < selectedColumn.length; i++) {
+            cardsDraggableColumn.push(...selectedColumn.splice(i,1));
         }
 
-        cardsColumns['cardsColumn' + initialCardData.columnIndex] = column;
+        cardsColumns['cardsColumn' + initialCardData.columnIndex] = selectedColumn;
 
         this.setState({
             cardsDraggableColumn: cardsDraggableColumn,
@@ -448,14 +416,6 @@ class CardsManager extends Component {
                     cardId={card.cardId}
                     key={card.cardId}/>
         })
-
-        /* const testingCardsData = [
-            this.state.cards[0],
-            this.state.cards[0],
-            this.state.cards[0],
-        ] */
-        
-        // const testingCard = <Card testingCardData/>;
                             
         return (
             <CardsField>

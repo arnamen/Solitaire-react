@@ -37,9 +37,6 @@ const Card = ( props ) => {
             <Draggable disabled={props.disableDrag} 
                        defaultPosition ={cardPosition}
                        position={cardPosition}
-                       onMouseDown={() => {
-                        if(props.className) console.log(props.className)
-                        }}
                        onStart={(event) => {
                         $('.DraggableCardsColumn').css({
                             top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/2) + 'px',
