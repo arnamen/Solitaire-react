@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Card from '../../Card/Card';
 
 import classes from './CardsColumn.module.css'
@@ -26,7 +25,7 @@ const CardsColumn = ( props ) => {
 
     //высота и ширина места для карт а 5% меньше самих карт
     return (
-        <div className={classes.CardsColumn}>
+        <div className={classes.CardsColumn} id={props.columnId}>
             {cardsInColumn}
         </div>
     );

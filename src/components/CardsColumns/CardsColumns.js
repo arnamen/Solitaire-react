@@ -17,6 +17,7 @@ const CardsColumns = ( props ) => {
                 cardsStackLength={props.cardsStackLength}
                 cardsInColumn={props.cardsColumns[ColumnWithCards] /* передать содержимое (карты) в колонке */}
                 columnIndex={columnIndex}
+                columnId={'cardsColumn' + columnIndex}
                 key={uuidv4()}
                 >
 
