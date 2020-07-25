@@ -34,9 +34,7 @@ const CardsColumn = ( props ) => {
 
 const checkIfCardDraggable = (card, columnWithCards) => {
     let draggable = true;
-    if(!card.hideCardValue){
-        console.log('here')
-    }
+    
     for (let i = card.insideColumnIndex; i < columnWithCards.length - 1; i++) {
         
         //проверка что карты после выбранной распределены по приоритету, а сама выбранная карта не скрыта
