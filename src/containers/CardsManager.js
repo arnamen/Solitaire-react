@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-// import classes from './CardsManager.module.css'
+//для обработки наведения на пустые колонки
+import columnClasses from '../components/CardsColumns/CardsColumn/CardsColumn.module.css';
 
 import $ from 'jquery';
 import CardsField from '../components/CardsField/CardsField'
@@ -47,7 +48,6 @@ class CardsManager extends Component {
 
     constructor(props){
         super(props);
-
         const cardsPath = this.importAllCards(require.context('../assets/cards-svg/', false, /\.(svg)$/));
         let cardsShirt = null;
         const cards = [];
@@ -251,7 +251,7 @@ class CardsManager extends Component {
     fillColumnsToBeginGame = (columnsSize = 0, cardsDealMode = 2) => {
         //cardsDealMode определяет каким образом раздавать карты. 1 - по столбикам, 2 - по строкам
         //раздать карты 5 раз
-        if(columnsSize < 5) this.giveOutCards(true, columnsSize); 
+        if(columnsSize < 2) this.giveOutCards(true, columnsSize); 
         //после того как колонки заполнены - проанимировать выдачу карт
         else {    
             let animDelayCounter = 0;  //счетчик для задержки перед выдачей карт
@@ -338,7 +338,7 @@ class CardsManager extends Component {
                     //раскрыть следующую карту в выбранной колонке
                     const selectedCardColumn = [...this.state.cardsColumns['cardsColumn' + selectedCards[0].columnIndex]]; 
                     if(!selectedCardColumn) return;
-                    selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
+                    if(selectedCardColumn[selectedCardColumn.length - 1]) selectedCardColumn[selectedCardColumn.length - 1].hideCardValue = false;
                     //изменить данные карты в соответствии с перемещеной колонкой
                     card.insideColumnIndex = hoveredCard.insideColumnIndex + 1 + index;
                     card.columnIndex = hoveredCard.columnIndex;
@@ -434,23 +434,6 @@ class CardsManager extends Component {
 
     }
 
-    setsOfCardsTest = () => {
-        return;
-        // eslint-disable-next-line no-unreachable
-        const columns = {...this.state.cardsColumns};
-        let column = [];
-        column.push(...columns['cardsColumn4'].splice(0));
-        this.setState({
-            cardsColumns: columns,
-            cardsSetsStack: column
-        }, () => {
-            //после добавления проанимировать перемещение карт
-            this.state.cardsSetsStack.slice().reverse().forEach((card, index) => {
-                this.moveCardFromcolumnTostackAnim(card, index);
-            })
-        })
-    }
-
     //добавить все карты из выбранной колонки начиная с выбранной, если выполняются услвоия
     addCardsToDraggableColumn = (initialCardData) => {
         
@@ -484,7 +467,15 @@ class CardsManager extends Component {
     //в этом методе происходит обработка hover карт в колонках
     componentDidUpdate(){
 
-        //получение колонок из обьекта
+        //получение отрендереных блоков колонок
+        const columnsBlocks = $(`.${columnClasses.cardsColumn}`);
+        columnsBlocks.hover(() => {
+            columnsBlocks.css({
+                border: '1px solid green'
+            })
+        })
+
+        //получение данных о колонках из обьекта
         Object.keys(this.state.cardsColumns)
         .forEach(( columnName ) => {
             //получение массива карт в каждой колонке
@@ -547,8 +538,6 @@ class CardsManager extends Component {
             <CardsField click={this.setsOfCardsTest}>
                 <CardsColumns columnsQuantity={10}
                     addCardsToDraggableColumn = {this.addCardsToDraggableColumn}
-                    /* selectAndHighZIndexOnCard={this.selectAndHighZIndexOnCard}
-                    defaultZIndexOnCard={this.defaultZIndexOnCard} */
                     cardsColumns ={this.state.cardsColumns}
                     checkIfCardApplied={this.checkIfCardApplied}
                     columnWidth={(parseInt(this.state.cardWidth) - parseInt(this.state.cardWidth)*0.05) + 'px'}/>
