@@ -332,7 +332,7 @@ class CardsManager extends Component {
 
             if(selectedCards && hoveredData && selectedCards.length !== 0)
 
-                if(!$.isEmptyObject(hoveredData) /* && !hoveredData.hideCardValue  */ &&
+                if(!$.isEmptyObject(hoveredData) && !hoveredData.hideCardValue  &&
                 hoveredData.priority - 1 === selectedCards[0].priority &&
                 //условие - если карта наведенная является последней в колонке
                hoveredData.insideColumnIndex === this.state.cardsColumns['cardsColumn' + hoveredData.columnIndex].length - 1){
