@@ -4,7 +4,7 @@
     width: 8vw;
     height: 11.3vw;
     margin: 0 0.9vw;
-    border: 1px solid white;
+    /* border: 1px solid white; */
     background-color: rgba(0,0,0,0);
     box-sizing: border-box;
 }

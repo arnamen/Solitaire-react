@@ -388,23 +388,39 @@ class CardsManager extends Component {
             } else { //если колонка не выбрана - вернуть карты из буферной колонки в изначальную
                 const selectedCardsColumn = [...this.state.cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex]];
                 const cardsDraggableColumn = [...this.state.cardsDraggableColumn];
+
                 selectedCardsColumn.push(...cardsDraggableColumn);
 
                 const cardsColumns = {...this.state.cardsColumns};
                 cardsColumns['cardsColumn' + this.state.cardsDraggableColumn[0].columnIndex] = selectedCardsColumn;
-                this.setState({
-                    cardsColumns: cardsColumns,
-                    cardsDraggableColumn: []
-                })
+                // this.moveCardFromDraggableColToColAnim(cardsDraggableColumn)
+                setTimeout(() => {
+                    this.setState({
+                        cardsColumns: cardsColumns,
+                        cardsDraggableColumn: []
+                    })
+                }, 0);
             }
+    }
+
+    moveCardFromDraggableColToColAnim = ( cards = []) => {
+        cards.forEach(( card ) => {
+            // console.log('working...')
+            // console.log(card)
+            $(`#${card.cardId}`)
+            .animate({
+                bottom: 'auto',
+                right: 'auto',
+                left: `${1 + 9.8 * card.columnIndex}vw`,
+                top: `${0.5 + 3 * card.cardInColumnIndex}vh`,
+            }, 200)
+        })
     }
 
     moveCardFromStackToColumnAnim = (card, columnIndex, cardInColumnIndex, animDelayMultiplier) => {
 
-        //запомнить предыдущий параметр transform (возможно сдеплать по формуле через индекс карты в колонке, не в приоритете)
-        /* let initialCardYTransform = $(`#${card.cardId}`).css('transform').split(',')[5];
-        initialCardYTransform = initialCardYTransform.substr(0, initialCardYTransform.indexOf(')')) */
-        //ширина одной колонки для карт 9.8vw, отступ вычисляем по формуле 9.8*индексКолонки+padding оболочки (~1vw)
+        //ширина одной колонки для карт 9.8vw
+        //отступ вычисляем по формуле 9.8*индексКолонки+padding оболочки (~1vw)
         //сначала установить карту в её теоретическое положение в стеке
         $(`#${card.cardId}`).css({
             left: 'auto',
@@ -414,19 +430,17 @@ class CardsManager extends Component {
             transform: `translate(${-5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(card.cardIndex/10))}px,${pixelToVH(-2)})`,
             zIndex: 1000+card.cardIndex
         })
-        // transformCardPosition={{x: 5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(index/10)), y: 0}}
         //потом запустить анимацию её передвижения на место в столбике
-        $(`#${card.cardId}`).delay(animDelayMultiplier * 200).animate({
+        $(`#${card.cardId}`).delay(animDelayMultiplier * 10).animate({
             //left: padding + ширина столбика, top: для красоты + отступ на позицию карты в колонке
             bottom: 'auto',
             right: 'auto',
             left: `${1 + 9.8 * columnIndex}vw`,
             top: `${0.5 + 3 * cardInColumnIndex}vh`,
             transform: `translate(${-5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(card.cardIndex/10))}px,${pixelToVH(-2)})`,
-        }, 200,
+        }, 10,
             () => {
                 $(`#${card.cardId}`).css({
-                    // transform: `translate(${-1}vw,${3 * cardInColumnIndex}vh)`,
                     transform: 'none',
                     zIndex: 'auto'
                 })
@@ -435,7 +449,7 @@ class CardsManager extends Component {
     }
     //переместить карту из колонки в стек для собранных наборов карт
     moveCardFromcolumnTostackAnim = (card, animDelayMultiplier) => {
-        // transformCardPosition={{x: 5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(index/10)), y: 0}}
+
         //потом запустить анимацию её передвижения на место в столбике
         if(!card) {
             console.log('[moveCardFromcolumnTostackAnim] error')
@@ -487,9 +501,10 @@ class CardsManager extends Component {
             //сразу после добавления карт в буферную колонку затриггерить нажатие на карту так что колонку можно сразу перетягивать
             const event = new Event('mousedown', {bubbles: true});
             event.simulated = true;
-
+            //отправить событие первой карте в колонке или карте, которая передана в качестве аргумента
+            //карта в аргументе тоже должна быть первой в колонке
             document.getElementById(this.state.cardsDraggableColumn[0].cardId || initialCardData.cardId).dispatchEvent(event)
-            // console.log($('#' + initialCardData.cardId).trigger('onMouseDown'))
+            
         })
         
     }
@@ -522,6 +537,7 @@ class CardsManager extends Component {
 
                 const card = $(`#${cardData.cardId}`);
                 //событие наведения на карту hover
+                //сохранение данных о том, на какаую карту навёл пользователь и визуализация наведения
                 card.hover(
 
                     () => {

@@ -5,10 +5,8 @@ import Card from '../../Card/Card';
 import './DraggableCardsColumn.css'
 
 const DraggableCardColumn = ( props ) => {
-    const dragHandles = [];
     //в пропсы так же отправлять position left+top
     const cardsInColumn = props.cardsInColumn.map(( cardData, cardIndex ) => {
-        dragHandles.push('' + cardData.cardId);
         return <Card cardData={cardData}
                 className={'dragTest'}
                 checkIfCardApplied={props.checkIfCardApplied}

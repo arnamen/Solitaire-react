@@ -1,7 +1,6 @@
 import React from 'react';
 import Draggable from 'react-draggable';
 import $ from 'jquery'
-// import classes from './Card.module.css'
 
 const Card = ( props ) => {
 
@@ -26,6 +25,7 @@ const Card = ( props ) => {
                         display: 'inline-block',
                         width: props.cardData.cardWidth,
                         position: 'absolute',
+                        borderStyle: 'border-box',
                         ...props.style
                         }}
                     key={props.cardData.cardId} 
@@ -38,10 +38,12 @@ const Card = ( props ) => {
                        defaultPosition ={cardPosition}
                        position={cardPosition}
                        onStart={(event) => {
+                           //переместить колонку на позицию нажатия курсором
                         event.stopPropagation();
+                        console.log($(`#${props.cardData.cardId}`).position().top);
                         $('.DraggableCardsColumn').css({
-                            top: (event.clientY - parseFloat(props.cardData.cardWidth) * Math.sqrt(2)/10) + 'px',
-                            left: (event.clientX-parseFloat(props.cardData.cardWidth)/2) + 'px'
+                            top: $(`#${props.cardData.cardId}`).position().top + 'px',
+                            left: ($(`#${props.cardData.cardId}`).position().left + 2) + 'px'
                         });
                         //в качестве аргумента передаётся первая карта
                         //карты, которые следуют за ней функция получает самостоятельно
