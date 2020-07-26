@@ -13,9 +13,9 @@ const Card = ( props ) => {
             if(cardPosition.y.includes('vh')) cardPosition.y = vhTOpx(parseFloat(cardPosition.y));
         }
 
-        if(props.cardData.cardId === 'testingCard'){
+        /* if(props.cardData.cardId === 'testingCard'){
             console.log(props.cardData.cardPath)
-        }
+        } */
 
     const card = <img 
                     className={props.className}
@@ -40,7 +40,7 @@ const Card = ( props ) => {
                        onStart={(event) => {
                            //переместить колонку на позицию нажатия курсором
                         event.stopPropagation();
-                        console.log($(`#${props.cardData.cardId}`).position().top);
+                        // console.log($(`#${props.cardData.cardId}`).position().top);
                         $('.DraggableCardsColumn').css({
                             top: $(`#${props.cardData.cardId}`).position().top + 'px',
                             left: ($(`#${props.cardData.cardId}`).position().left + 2) + 'px'

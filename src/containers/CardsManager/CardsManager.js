@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 //для обработки наведения на пустые колонки
-import columnClasses from '../components/CardsColumns/CardsColumn/CardsColumn.module.css';
+import columnClasses from '../../components/game/CardsColumns/CardsColumn/CardsColumn.module.css';
 
 import $ from 'jquery';
-import CardsField from '../components/CardsField/CardsField'
-import CardsColumns from '../components/CardsColumns/CardsColumns';
-import CardsStack from '../components/CardsStack/CardsStack';
-import DraggableCardsColumn from '../components/CardsColumns/DraggableCardColumn/DraggableCardsColumn';
-import CardsSetsStack from '../components/CardsSetsStack/CardsSetsStack';
-import Card from '../components/Card/Card';
+import CardsField from '../../components/game/CardsField/CardsField'
+import CardsColumns from '../../components/game/CardsColumns/CardsColumns';
+import CardsStack from '../../components/game/CardsStack/CardsStack';
+import DraggableCardsColumn from '../../components/game/CardsColumns/DraggableCardColumn/DraggableCardsColumn';
+import CardsSetsStack from '../../components/game/CardsSetsStack/CardsSetsStack';
+import Card from '../../components/game/Card/Card';
 
 //пасьянс паук - 102 карты
 //ширина колонки - 8+0.9+0.9vw = 9.8vw
@@ -49,7 +49,7 @@ class CardsManager extends Component {
 
     constructor(props){
         super(props);
-        const cardsPath = this.importAllCards(require.context('../assets/cards-svg/', false, /\.(svg)$/));
+        const cardsPath = this.importAllCards(require.context('../../assets/cards-svg/', false, /\.(svg)$/));
         let cardsShirt = null;
         const cards = [];
 
@@ -645,9 +645,5 @@ const shuffle = (array) => {
 
 const pixelToVH = (value) => {
     return `${(100 * value) / window.innerHeight}vh`;
-  }
-// eslint-disable-next-line no-unused-vars
-const pixelToVW = (value) => {
-    return `${(100 * value) / window.innerWidth}vw`;
-  }
+  } 
 export default CardsManager;

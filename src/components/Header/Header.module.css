@@ -1,0 +1,15 @@
+.Header {
+    height: 7vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.Header > .Nav {
+    text-decoration: none;
+    color: white;
+}
+
+.Header > .Nav.Active {
+    color: red;
+}
