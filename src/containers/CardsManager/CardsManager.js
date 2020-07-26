@@ -589,7 +589,7 @@ class CardsManager extends Component {
 
         return (
 
-            <CardsField click={this.setsOfCardsTest}>
+            <CardsField>
                 <CardsColumns columnsQuantity={10}
                     addCardsToDraggableColumn = {this.addCardsToDraggableColumn}
                     cardsColumns ={this.state.cardsColumns}

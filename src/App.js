@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {BrowserRouter, Route} from 'react-router-dom';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 
 import Layout from './layout/Layout'
-import HighScoresTable from './containers/HighScoresTable/HighScoresTable'
+import HighScoresTable from './containers/HighScoresData/HighScoresData'
 import CardsManager from './containers/CardsManager/CardsManager';
 
 import './App.css';
@@ -12,8 +12,11 @@ class App extends Component {
     return (
       <BrowserRouter>
         <Layout>
-          <Route exact path='/' render={() => <CardsManager cardWidth={vwTOpx(9) + 'px'}/>}/>
-          <Route exact path='/scoreboard' component={HighScoresTable} />
+          <Switch>
+            <Route exact path='/' render={() => <CardsManager cardWidth={vwTOpx(9) + 'px'}/>}/>
+            <Route exact path='/scoreboard' component={HighScoresTable} />
+            <Route render={() => <h1 style={{textAlign: 'center'}}>Route not found</h1>}/>
+          </Switch>
         </Layout>
       </BrowserRouter>
     );

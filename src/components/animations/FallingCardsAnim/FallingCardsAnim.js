@@ -43,8 +43,7 @@ class FallingCardsAnim extends Component {
         })
         this.cardsShirt = cardsShirt;
         this.cards = cards;
- 
-        console.log(cards)
+
     }
 
     importAllCards = (r) => {
@@ -55,16 +54,23 @@ class FallingCardsAnim extends Component {
 
         setInterval(() => {
             const card = this.cards[randomInteger(0, this.cards.length - 1)];
-            console.log(card.cardId)
+            // console.log(card.cardId)
             $(`#${card.cardId}`)
             .css({
                 position: 'absolute',
                 left: `${randomInteger(0,100)}vw`,
-                top: '0px'
+                top: '0px',
+                transform: '1s webkitTransform'
             })
             .animate({
-                top: '110vh'
-            }, randomInteger(500,5000))
+                top: '110vh',
+                deg: randomInteger(-180,180),
+            }, {
+                duration: randomInteger(2500,5000),
+                step: function(now) {
+                    $(this).css({ transform: 'rotate(' + now + 'deg)' });
+                }
+            })
 
         }, delay);
 
@@ -81,10 +87,13 @@ class FallingCardsAnim extends Component {
                     src={card.cardPath}
                     alt={card.cardName}
                     id={card.cardId}
+                    fillOpacity='0.4'
                     key={card.cardId}
                     style={{
                         width: card.cardWidth,
-                        position: 'absolute'
+                        position: 'absolute',
+                        opacity: '0.3',
+                        left: '-100%'
                     }}></img>
         })
 
