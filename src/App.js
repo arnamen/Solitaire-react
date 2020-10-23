@@ -7,18 +7,20 @@ import CardsManager from './containers/CardsManager/CardsManager';
 
 import './App.css';
 class App extends Component {
+  isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   render() {
     //высота карты подставляется пропорционально (9vw)
     return (
       <BrowserRouter>
         <Layout>
           <Switch>
-            <Route exact path='/' render={() => <CardsManager cardWidth={vwTOpx(9) + 'px'}/>}/>
+            { this.isMobile ? <Route exact path='/' render={() => <h1 style={{textAlign: 'center'}}>Mobile devices is not supported</h1>}/> :
+            <Route exact path='/' render={() => <CardsManager cardWidth={vwTOpx(9) + 'px'}/>}/>}
             <Route exact path='/scoreboard' component={HighScoresTable} />
             <Route render={() => <h1 style={{textAlign: 'center'}}>Route not found</h1>}/>
           </Switch>
         </Layout>
-      </BrowserRouter>
+      </BrowserRouter> 
     );
   }
 }

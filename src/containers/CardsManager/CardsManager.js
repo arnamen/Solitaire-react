@@ -90,7 +90,8 @@ class CardsManager extends Component {
         //добавить уникальные айди копиям карт
         this.state.cardsStack.push(...this.copyDeckOfCards(cards));
 
-        inOrder(this.state.cardsStack); //перемешать карты в стеке
+        this.debug ? byPriorityAndType(this.state.cardsStack) : shuffle(this.state.cardsStack) //перемешать карты в стеке
+        console.log(this.state.cardsStack)
         // shuffle(this.state.cardsStack); //разложить карты по приоритету
         this.state.cardsPath = cardsPath;
         this.state.cards = cards;
@@ -159,11 +160,11 @@ class CardsManager extends Component {
             if(columnToCheck[i].priority === 13){
                 //начиная с короля, проверить все последующие карты
                 for (let j = i; j < columnToCheck.length - 1; j++) {
+                    const cardSuit = columnToCheck[j].cardName.charAt(1); //масть карты
                     const delta = columnToCheck[j].priority - columnToCheck[j+1].priority;
-                    //если карта не следующая по приоритету - прекратить проверку
-                    if(delta !== 1) return;
+                    //если карта не следующая по приоритету или масть не совпадает - прекратить проверку
+                    if(delta !== 1 || cardSuit !== columnToCheck[i].cardName.charAt(1)) return;
                     if(j - i >= 11) {
-                        console.log(j, columnToCheck[i].insideColumnIndex)
                         console.log('set collected! column: ', initialCard)
                         collectedSetFirstCardIndex = i;
                     }
@@ -176,7 +177,6 @@ class CardsManager extends Component {
         //дальнейший код будет выполнен только если собран набор карт
 
         const setOfCardsArr = columnToCheck.splice(collectedSetFirstCardIndex);
-        console.log(initialCard.priority)
         this.setState({
             cardsSetsStack: setOfCardsArr
         }, () => {
@@ -253,7 +253,7 @@ class CardsManager extends Component {
     fillColumnsToBeginGame = (columnsSize = 0, cardsDealMode = 2) => {
         //cardsDealMode определяет каким образом раздавать карты. 1 - по столбикам, 2 - по строкам
         //раздать карты 5 раз
-        if(columnsSize < 5) this.giveOutCards(true, columnsSize); 
+        if(columnsSize < (this.debug ? 2 : 5)) this.giveOutCards(true, columnsSize); 
         //после того как колонки заполнены - проанимировать выдачу карт
         else {    
             let animDelayCounter = 0;  //счетчик для задержки перед выдачей карт
@@ -431,14 +431,14 @@ class CardsManager extends Component {
             zIndex: 1000+card.cardIndex
         })
         //потом запустить анимацию её передвижения на место в столбике
-        $(`#${card.cardId}`).delay(animDelayMultiplier * 10).animate({
+        $(`#${card.cardId}`).delay(animDelayMultiplier * 150).animate({
             //left: padding + ширина столбика, top: для красоты + отступ на позицию карты в колонке
             bottom: 'auto',
             right: 'auto',
             left: `${1 + 9.8 * columnIndex}vw`,
             top: `${0.5 + 3 * cardInColumnIndex}vh`,
             transform: `translate(${-5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(card.cardIndex/10))}px,${pixelToVH(-2)})`,
-        }, 10,
+        }, 200,
             () => {
                 $(`#${card.cardId}`).css({
                     transform: 'none',
@@ -463,22 +463,22 @@ class CardsManager extends Component {
             top: `${0.5 + 3 * card.insideColumnIndex}vh`,
             // transform: `translate(${-5*(Math.floor(this.state.cardsStack.length/10)) - 5*(Math.floor(card.cardIndex/10))}px,${pixelToVH(-2)})`,
         })
-        .delay(animDelayMultiplier * 1000)
+        .delay(animDelayMultiplier * 200)
         .animate({zIndex: animDelayMultiplier})
         .animate({
             left: `2vw`,
-            bottom: '5vh',
-            top: `${95- parseFloat(pixelToVH(parseFloat(this.state.cardHeight)))}vh`,
+            bottom: '14vh',
+            top: `${95- parseFloat(pixelToVH(parseFloat(this.state.cardHeight))) - 9}vh`,
             right: 'auto',
             transform: 'none',
-        }, 1000)
+        }, 200)
         .css({transform: 'none'});
         
 
     }
 
     //добавить все карты из выбранной колонки начиная с выбранной, если выполняются услвоия
-    addCardsToDraggableColumn = (initialCardData) => {
+    addCardsToDraggableColumn = (initialCardData, initialEvent) => {
         
         if(!$.isNumeric(initialCardData.columnIndex)) return; //если в данных карты не указана колонка - прекратить работу
         //колонка в которой находится карта
@@ -488,9 +488,6 @@ class CardsManager extends Component {
 
         cardsDraggableColumn.push(...selectedColumn.splice(initialCardData.insideColumnIndex,
             selectedColumn.length - initialCardData.insideColumnIndex)); //добавить в буферную колонку выбранную карту и все после неё
-        /* for (let i = initialCardData.insideColumnIndex; i < selectedColumn.length; i++) {
-            cardsDraggableColumn.push(...selectedColumn.splice(i,1));
-        } */ //добавить только выбранную карту (возможно)
 
         cardsColumns['cardsColumn' + initialCardData.columnIndex] = selectedColumn;
 
@@ -501,9 +498,10 @@ class CardsManager extends Component {
             //сразу после добавления карт в буферную колонку затриггерить нажатие на карту так что колонку можно сразу перетягивать
             const event = new Event('mousedown', {bubbles: true});
             event.simulated = true;
-            //отправить событие первой карте в колонке или карте, которая передана в качестве аргумента
+            //отправить событие нажатия первой карте в колонке или карте, которая передана в качестве аргумента
             //карта в аргументе тоже должна быть первой в колонке
-            document.getElementById(this.state.cardsDraggableColumn[0].cardId || initialCardData.cardId).dispatchEvent(event)
+            document.querySelector('.DraggableCardsColumn').dispatchEvent(event);
+            // document.getElementById(this.state.cardsDraggableColumn[0].cardId || initialCardData.cardId).dispatchEvent(event)
             
         })
         
@@ -627,6 +625,16 @@ class CardsManager extends Component {
 
 const inOrder = (cardsArray = []) => {
     cardsArray.sort((card1, card2) => (card1.priority - card2.priority))
+}
+
+const byPriorityAndType = (cardsArray = []) => {
+    cardsArray.sort((card1, card2) => {
+        if(card2.cardName.charAt(1) === 'C') {
+            console.log(card2.cardName.charAt(1))
+            return -1;
+        }
+        else return 0;
+    })
 }
 
 // eslint-disable-next-line no-unused-vars

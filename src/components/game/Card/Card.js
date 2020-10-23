@@ -47,7 +47,7 @@ const Card = ( props ) => {
                         });
                         //в качестве аргумента передаётся первая карта
                         //карты, которые следуют за ней функция получает самостоятельно
-                        props.addCardsToDraggableColumn(props.cardData);
+                        props.addCardsToDraggableColumn(props.cardData, event);
                            }}>
                 {card}
             </Draggable>

@@ -15,10 +15,10 @@ const DraggableCardColumn = ( props ) => {
                 disableDrag = {true}
                 insideColumnIndex={cardData.insideColumnIndex}
                 key={cardData.cardId /* cardData.cardData.cardId */}
-                /* style={props.style || {
-                    left: `${3+9.8*cardData.columnIndex}vw`,
-                    top: `${0.5}vh`
-                }} *//>
+                style={{
+                    pointerEvents: 'auto',
+                    ...props.style
+                }}/>
     })
 
     return (
@@ -29,27 +29,30 @@ const DraggableCardColumn = ( props ) => {
              y: 0
          }}
         //  allowAnyClick
-         handle= '.dragTest'
+        //  handle= '.dragTest'
          defaultClassName='DraggableCardsColumn_drag'
          defaultClassNameDragging='DraggableCardsColumn_dragging'
          defaultClassNameDragged='DraggableCardsColumn_dragged'
          
-         onStart={() => { 
+         onStart={( event ) => { 
+
              props.selectAndHighZIndexOnCard({
              cardsInColumn: props.cardsInColumn,
              columnClassname: 'DraggableCardsColumn'
             }, true);
         }}
 
-        onStop={() => {props.defaultZIndexOnCard({
+        onDrag={( event ) => {
+        }}
+
+        onStop={() => {
+            props.defaultZIndexOnCard({
             cardsInColumn: props.cardsInColumn,
             columnClassname: 'DraggableCardsColumn'
             }, true);
             props.checkIfCardApplied();
                 }
-            }
-                
-                >
+            }>
 
                     <div
                         className='DraggableCardsColumn'

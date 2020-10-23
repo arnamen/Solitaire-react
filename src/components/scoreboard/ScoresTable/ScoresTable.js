@@ -1,6 +1,7 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
+import Spinner from '../../animations/Spinner/Spinner'
 import classes from './ScoresTable.module.css'
 
 const ScoresTable = ( props ) => {
@@ -17,8 +18,13 @@ const ScoresTable = ( props ) => {
     })
     //
 
-    if(Object.keys(props.data).length < 15){
-        for (let i = 0; i < 15 - Object.keys(props.data).length; i++) {
+    rowsWithCells.push(<tr className={classes.row} key={uuidv4()}>
+            <td className={classes.cell}>EmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmptyEmpty</td>
+            <td className={classes.cell}>Empty</td>
+        </tr>)
+
+    if(Object.keys(props.data).length < 25){
+        for (let i = 0; i < 25 - Object.keys(props.data).length; i++) {
             rowsWithCells.push(<tr className={classes.row} key={uuidv4()}>
             <td className={classes.cell}>Empty</td>
             <td className={classes.cell}>Empty</td>
@@ -30,17 +36,15 @@ const ScoresTable = ( props ) => {
 
     return (
         <div className={classes.ScoresTable}>
-            <table className={classes.table}>
+            {rowsWithCells ? <table className={classes.table}>
                 <thead>
                     <tr className={classes.row + ' ' + classes.green}>
                         <th>Username</th>
                         <th>Score</th>
                     </tr>
                 </thead>
-                <tbody>
-                {rowsWithCells}
-                </tbody>
-            </table>
+                <tbody>{rowsWithCells}</tbody>
+            </table> : <Spinner/> }
         </div>
     );
 }
