@@ -13,14 +13,13 @@ import Card from '../../components/game/Card/Card';
 
 //пасьянс паук - 102 карты
 //ширина колонки - 8+0.9+0.9vw = 9.8vw
-//Анимации делать с помощью jquery  и пофиг
 class CardsManager extends Component {
 
     debug = false;
 
     selectedCards = null; //картка, которую выбрал пользователь
     hoveredCard = null; //карта на которую навёл пользователь
-    hoveredColumn = null; //пустая колонка, на которую навёл пользователь
+    hoveredColumn = null; //колонка, на которую навёл пользователь
 
     state = {
         cards: [],
